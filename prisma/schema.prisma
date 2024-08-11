@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    url      = env("DATABASE_URL")
+    url      = env("POSTGRES_URL")
 }
 
 model Forze {
@@ -30,7 +30,7 @@ model Ottave {
     forza               Forze        @relation(fields: [forza_id], references: [id])
     vibrazioni          Vibration[]
     entita              Entita_Cosmiche[]
-    carte               Carte[] @relation("CarteOttaveRelation")
+    carte               Carte[] @relation("CarteOttaveRelation", fields: [], references: [])
     scale               Scale[] @relation("ScaleOttaveRelation")
     idrogeni            Idrogeni[]
     timelines           Timeline[] @relation("TimelineOttaveRelation")
@@ -120,7 +120,7 @@ model Eventi_Cosmici {
     importanza  Int?     // Grado di importanza dell'evento
     processi    Processi_Cosmici[]
     simboli     Simbologie_Esoteriche[]
-    carte       Carte[] @relation("CarteEventiRelation")
+    carte       Carte[] @relation("CarteEventiRelation", fields: [], references: [])
     relazioni_temporali Relazioni_Temporali[]
     timelines   Timeline[] @relation("TimelineEventiRelation")
 }
@@ -232,8 +232,10 @@ model Carte {
     forza               Forze? @relation(fields: [forza_id], references: [id])
     legge_cosmica       Leggi_Cosmiche? @relation(fields: [legge_cosmica_id], references: [id])
     anomalie            Anomalie_Cosmiche[] @relation("AnomalieCarteRelation")
+    ottava_id           Int?
+    ottava              Ottave? @relation("CarteOttaveRelation", fields: [ottava_id], references: [id])
     eventi_CosmiciId    Int?
-    eventi_Cosmici      Eventi_Cosmici? @relation(fields: [eventi_CosmiciId], references: [id])
+    eventi_Cosmici      Eventi_Cosmici? @relation("CarteEventiRelation", fields: [eventi_CosmiciId], references: [id])
 }
 
 model Scale {
