@@ -223,13 +223,17 @@ model Carte {
     id                  Int      @id @default(autoincrement())
     nome                String
     descrizione         String
+    tipo                String
+    evento_id           Int?
     forza_id            Int?
     legge_cosmica_id    Int?
-    evento_id           Int?
-    legge_cosmica       Leggi_Cosmiche? @relation(fields: [legge_cosmica_id], references: [id])
+    significato_temporale String? // Significato temporale della carta
+    livello_energia     Float?   // Livello di energia associato alla carta
     forza               Forze? @relation(fields: [forza_id], references: [id])
+    legge_cosmica       Leggi_Cosmiche? @relation(fields: [legge_cosmica_id], references: [id])
     anomalie            Anomalie_Cosmiche[] @relation("AnomalieCarteRelation")
-    ottave              Ottave[] @relation("CarteOttaveRelation")
+    eventi_CosmiciId    Int?
+    eventi_Cosmici      Eventi_Cosmici? @relation(fields: [eventi_CosmiciId], references: [id])
 }
 
 model Scale {
