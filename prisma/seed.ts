@@ -3,179 +3,247 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    // Inserimento delle forze cosmiche
-    const forzaAttiva = await prisma.forze.create({
-        data: {
-            nome: 'Forza Attiva',
-            descrizione: 'Questa è la forza attiva che guida l’evoluzione.',
-            tipo: 'Attiva',
-        },
-    });
+  // Creazione delle tre forze
+  const forzaAttiva = await prisma.forza.create({
+    data: {
+      nome: 'Forza Attiva',
+      descrizione: 'La forza che inizia ogni azione, collegata alla creatività e al movimento.',
+      tipo: 'Attiva',
+    },
+  });
 
-    const forzaPassiva = await prisma.forze.create({
-        data: {
-            nome: 'Forza Passiva',
-            descrizione: 'Questa è la forza passiva che resiste ai cambiamenti.',
-            tipo: 'Passiva',
-        },
-    });
+  const forzaPassiva = await prisma.forza.create({
+    data: {
+      nome: 'Forza Passiva',
+      descrizione: 'La forza che riceve e forma, associata alla stabilità e all’integrazione.',
+      tipo: 'Passiva',
+    },
+  });
 
-    const forzaNeutra = await prisma.forze.create({
-        data: {
-            nome: 'Forza Neutra',
-            descrizione: 'Questa è la forza neutra che bilancia attiva e passiva.',
-            tipo: 'Neutra',
-        },
-    });
+  const forzaNeutralizzante = await prisma.forza.create({
+    data: {
+      nome: 'Forza Neutralizzante',
+      descrizione: 'La forza che armonizza le altre due, creando equilibrio e coerenza.',
+      tipo: 'Neutralizzante',
+    },
+  });
 
-    // Inserimento di ottave
-    const ottavaSole = await prisma.ottave.create({
-        data: {
-            nome: 'Ottava del Sole',
-            frequenza_iniziale: 432.0,
-            frequenza_finale: 864.0,
-            forza_id: forzaAttiva.id,
-            descrizione: 'Questa ottava rappresenta l’evoluzione solare.',
-            livello: 1,
-        },
-    });
+  // Creazione delle tre attenzioni
+  const primaAttenzione = await prisma.attenzione.create({
+    data: {
+      nome: 'Prima Attenzione',
+      descrizione: 'Focalizzazione sul mondo esterno e sui dettagli immediati.',
+      livello: 1,
+    },
+  });
 
-    const ottavaLuna = await prisma.ottave.create({
-        data: {
-            nome: 'Ottava della Luna',
-            frequenza_iniziale: 216.0,
-            frequenza_finale: 432.0,
-            forza_id: forzaPassiva.id,
-            descrizione: 'Questa ottava rappresenta l’evoluzione lunare.',
-            livello: 2,
-        },
-    });
+  const secondaAttenzione = await prisma.attenzione.create({
+    data: {
+      nome: 'Seconda Attenzione',
+      descrizione: 'Consapevolezza riflessiva, rivolta all’interiorità e alla comprensione più profonda.',
+      livello: 2,
+    },
+  });
 
-    const ottavaTerra = await prisma.ottave.create({
-        data: {
-            nome: 'Ottava della Terra',
-            frequenza_iniziale: 108.0,
-            frequenza_finale: 216.0,
-            forza_id: forzaNeutra.id,
-            descrizione: 'Questa ottava rappresenta l’evoluzione della Terra.',
-            livello: 3,
-        },
-    });
+  const terzaAttenzione = await prisma.attenzione.create({
+    data: {
+      nome: 'Terza Attenzione',
+      descrizione: 'Stato di consapevolezza totale, collegamento tra tutte le cose.',
+      livello: 3,
+    },
+  });
 
-    const ottavaMarte = await prisma.ottave.create({
-        data: {
-            nome: 'Ottava di Marte',
-            frequenza_iniziale: 54.0,
-            frequenza_finale: 108.0,
-            forza_id: forzaAttiva.id,
-            descrizione: 'Questa ottava rappresenta l’evoluzione marziana.',
-            livello: 4,
-        },
-    });
+  // Creazione delle ottave principali
+  const ottavaCosmica = await prisma.ottava.create({
+    data: {
+      nome: 'Ottava Cosmica',
+      descrizione: 'L’ottava che rappresenta l’intero universo e le sue leggi.',
+      frequenzaIniziale: 256.0,
+      frequenzaFinale: 512.0,
+      forzaId: forzaAttiva.id,
+    },
+  });
 
-    const ottavaVenere = await prisma.ottave.create({
-        data: {
-            nome: 'Ottava di Venere',
-            frequenza_iniziale: 27.0,
-            frequenza_finale: 54.0,
-            forza_id: forzaPassiva.id,
-            descrizione: 'Questa ottava rappresenta l’evoluzione di Venere.',
-            livello: 5,
-        },
-    });
+  const ottavaSolare = await prisma.ottava.create({
+    data: {
+      nome: 'Ottava Solare',
+      descrizione: 'L’ottava che rappresenta il sistema solare, sottoinsieme dell’ottava cosmica.',
+      frequenzaIniziale: 512.0,
+      frequenzaFinale: 1024.0,
+      forzaId: forzaNeutralizzante.id,
+    },
+  });
 
-    // Inserimento di vibrazioni associate alle ottave
-    await prisma.vibration.createMany({
-        data: [
-            { frequenza: 432.0, intensita: 1.0, fase: 'iniziale', ottava_id: ottavaSole.id },
-            { frequenza: 648.0, intensita: 0.8, fase: 'medio', ottava_id: ottavaSole.id },
-            { frequenza: 864.0, intensita: 0.6, fase: 'finale', ottava_id: ottavaSole.id },
-            { frequenza: 216.0, intensita: 1.0, fase: 'iniziale', ottava_id: ottavaLuna.id },
-            { frequenza: 324.0, intensita: 0.8, fase: 'medio', ottava_id: ottavaLuna.id },
-            { frequenza: 432.0, intensita: 0.6, fase: 'finale', ottava_id: ottavaLuna.id },
-            { frequenza: 108.0, intensita: 1.0, fase: 'iniziale', ottava_id: ottavaTerra.id },
-            { frequenza: 162.0, intensita: 0.8, fase: 'medio', ottava_id: ottavaTerra.id },
-            { frequenza: 216.0, intensita: 0.6, fase: 'finale', ottava_id: ottavaTerra.id },
-            { frequenza: 54.0, intensita: 1.0, fase: 'iniziale', ottava_id: ottavaMarte.id },
-            { frequenza: 81.0, intensita: 0.8, fase: 'medio', ottava_id: ottavaMarte.id },
-            { frequenza: 108.0, intensita: 0.6, fase: 'finale', ottava_id: ottavaMarte.id },
-            { frequenza: 27.0, intensita: 1.0, fase: 'iniziale', ottava_id: ottavaVenere.id },
-            { frequenza: 40.5, intensita: 0.8, fase: 'medio', ottava_id: ottavaVenere.id },
-            { frequenza: 54.0, intensita: 0.6, fase: 'finale', ottava_id: ottavaVenere.id },
-        ],
-    });
+  const ottavaTerrestre = await prisma.ottava.create({
+    data: {
+      nome: 'Ottava Terrestre',
+      descrizione: 'L’ottava che rappresenta la Terra e tutte le sue dinamiche.',
+      frequenzaIniziale: 1024.0,
+      frequenzaFinale: 2048.0,
+      forzaId: forzaPassiva.id,
+    },
+  });
 
-    // Inserimento di relazioni tra ottave
-    await prisma.relazioni_Ottave.create({
-        data: {
-            ottava_superiore_id: ottavaSole.id,
-            ottava_inferiore_id: ottavaLuna.id,
-            tipo_relazione: 'Complementare',
-        },
-    });
+  // Collegare le ottave con le scale
+  const scalaCosmica = await prisma.scala.create({
+    data: {
+      nome: 'Scala Cosmica',
+      descrizione: 'La scala principale che regola l’intero universo.',
+      livello: 1,
+      ottavaId: ottavaCosmica.id,
+    },
+  });
 
-    await prisma.relazioni_Ottave.create({
-        data: {
-            ottava_superiore_id: ottavaLuna.id,
-            ottava_inferiore_id: ottavaTerra.id,
-            tipo_relazione: 'Complementare',
-        },
-    });
+  const scalaSolare = await prisma.scala.create({
+    data: {
+      nome: 'Scala Solare',
+      descrizione: 'Scala che regola il sistema solare.',
+      livello: 2,
+      ottavaId: ottavaSolare.id,
+      scalaPadreId: scalaCosmica.id,
+    },
+  });
 
-    await prisma.relazioni_Ottave.create({
-        data: {
-            ottava_superiore_id: ottavaTerra.id,
-            ottava_inferiore_id: ottavaMarte.id,
-            tipo_relazione: 'Complementare',
-        },
-    });
+  const scalaTerrestre = await prisma.scala.create({
+    data: {
+      nome: 'Scala Terrestre',
+      descrizione: 'Scala che regola la Terra.',
+      livello: 3,
+      ottavaId: ottavaTerrestre.id,
+      scalaPadreId: scalaSolare.id,
+    },
+  });
 
-    await prisma.relazioni_Ottave.create({
-        data: {
-            ottava_superiore_id: ottavaMarte.id,
-            ottava_inferiore_id: ottavaVenere.id,
-            tipo_relazione: 'Complementare',
-        },
-    });
+  // Creazione di centri e parti di centri
+  const centroIntellettuale = await prisma.centro.create({
+    data: {
+      nome: 'Centro Intellettuale',
+      descrizione: 'Centro responsabile del pensiero e della razionalità.',
+      scalaId: scalaTerrestre.id,
+    },
+  });
 
-    // Inserimento di segmenti
-    await prisma.segmenti.createMany({
-        data: [
-            { nome: 'Assoluto', descrizione: 'Il livello più alto di esistenza.', ordine: 1 },
-            { nome: 'Galassia', descrizione: 'Una galassia in cui si trovano più sistemi stellari.', ordine: 2 },
-            { nome: 'Sistema Solare', descrizione: 'Il sistema solare della Terra.', ordine: 3 },
-            { nome: 'Pianeta Terra', descrizione: 'Il pianeta abitato dagli esseri umani.', ordine: 4 },
-            { nome: 'Regno Minerale', descrizione: 'La parte del mondo occupata dai minerali.', ordine: 5 },
-        ],
-    });
+  const parteRazionale = await prisma.parteCentro.create({
+    data: {
+      nome: 'Parte Razionale',
+      descrizione: 'Parte del Centro Intellettuale dedicata alla logica e alla ragione.',
+      centroId: centroIntellettuale.id,
+    },
+  });
 
-    // Inserimento di leggi cosmiche
-    await prisma.leggi_Cosmiche.createMany({
-        data: [
-            { nome: 'Legge del Tre', descrizione: 'La legge che governa le triadi.', categoria: 'Legge Universale' },
-            { nome: 'Legge del Sette', descrizione: 'La legge che governa l’armonia e le ottave.', categoria: 'Legge Universale' },
-        ],
-    });
+  const sottoParteMemoria = await prisma.parteParte.create({
+    data: {
+      nome: 'Sotto Parte Memoria',
+      descrizione: 'Parte della Parte Razionale dedicata alla memoria.',
+      parteCentroId: parteRazionale.id,
+    },
+  });
 
-    // Inserimento di eventi cosmici
-    await prisma.eventi_Cosmici.create({
-        data: {
-            nome: 'Grande Allineamento',
-            descrizione: 'Un raro evento cosmico in cui tutti i pianeti del sistema solare si allineano.',
-            data_inizio: new Date('2024-12-21'),
-            data_fine: new Date('2024-12-22'),
-        },
-    });
+  const centroEmotivo = await prisma.centro.create({
+    data: {
+      nome: 'Centro Emotivo',
+      descrizione: 'Centro responsabile delle emozioni e dei sentimenti.',
+      scalaId: scalaTerrestre.id,
+    },
+  });
 
-    console.log('Database seeded successfully.');
+  const parteSentimentale = await prisma.parteCentro.create({
+    data: {
+      nome: 'Parte Sentimentale',
+      descrizione: 'Parte del Centro Emotivo dedicata alle emozioni profonde.',
+      centroId: centroEmotivo.id,
+    },
+  });
+
+  // Creazione di vibrazioni nelle ottave
+  await prisma.vibrazione.createMany({
+    data: [
+      {
+        frequenza: 256.0,
+        ottavaId: ottavaCosmica.id,
+      },
+      {
+        frequenza: 512.0,
+        ottavaId: ottavaSolare.id,
+      },
+      {
+        frequenza: 1024.0,
+        ottavaId: ottavaTerrestre.id,
+      },
+    ],
+  });
+
+  // Creazione delle carte per ogni ottava
+  await prisma.carta.createMany({
+    data: [
+      {
+        nome: 'Carta 1 della Ottava Cosmica',
+        descrizione: 'Carta che rappresenta il primo aspetto dell’Ottava Cosmica.',
+        posizione: 1,
+        ottavaId: ottavaCosmica.id,
+      },
+      {
+        nome: 'Carta 2 della Ottava Cosmica',
+        descrizione: 'Carta che rappresenta il secondo aspetto dell’Ottava Cosmica.',
+        posizione: 2,
+        ottavaId: ottavaCosmica.id,
+      },
+      {
+        nome: 'Carta 1 della Ottava Solare',
+        descrizione: 'Carta che rappresenta il primo aspetto dell’Ottava Solare.',
+        posizione: 1,
+        ottavaId: ottavaSolare.id,
+      },
+      {
+        nome: 'Carta 2 della Ottava Solare',
+        descrizione: 'Carta che rappresenta il secondo aspetto dell’Ottava Solare.',
+        posizione: 2,
+        ottavaId: ottavaSolare.id,
+      },
+      {
+        nome: 'Carta 1 della Ottava Terrestre',
+        descrizione: 'Carta che rappresenta il primo aspetto dell’Ottava Terrestre.',
+        posizione: 1,
+        ottavaId: ottavaTerrestre.id,
+      },
+      {
+        nome: 'Carta 2 della Ottava Terrestre',
+        descrizione: 'Carta che rappresenta il secondo aspetto dell’Ottava Terrestre.',
+        posizione: 2,
+        ottavaId: ottavaTerrestre.id,
+      },
+    ],
+  });
+
+  // Creazione di riferimenti temporali per collegare il tempo reale alla scala cosmica
+  await prisma.tempoReale.createMany({
+    data: [
+      {
+        nome: 'Inizio del Ciclo Cosmico',
+        tempoReale: new Date(2000, 0, 1),  // 1 gennaio 2000
+        scalaId: scalaCosmica.id,
+      },
+      {
+        nome: 'Inizio del Ciclo Solare',
+        tempoReale: new Date(2020, 0, 1),  // 1 gennaio 2020
+        scalaId: scalaSolare.id,
+      },
+      {
+        nome: 'Inizio del Ciclo Terrestre',
+        tempoReale: new Date(2024, 0, 1),  // 1 gennaio 2024
+        scalaId: scalaTerrestre.id,
+      },
+    ],
+  });
+
+  console.log('Seed completato con successo!');
 }
 
 main()
-    .then(async () => {
-        await prisma.$disconnect();
-    })
-    .catch(async (e) => {
-        console.error(e);
-        await prisma.$disconnect();
-        process.exit(1);
-    });
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

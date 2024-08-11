@@ -1,259 +1,104 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("POSTGRES_URL")
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
 }
 
-model Forze {
-    id          Int      @id @default(autoincrement())
-    nome        String
-    descrizione String
-    tipo        String
-    intensita   Float?   // Intensità della forza
-    origine     String?  // Origine della forza (e.g., cosmica, terrestre)
-    ottave      Ottave[]
-    processi    Processi_Cosmici[]
-    carte       Carte[]
+model Forza {
+  id              Int               @id @default(autoincrement()) // Identificatore unico per la forza cosmica
+  nome            String // Nome della forza cosmica, es. "Forza Creatrice"
+  descrizione     String? // Descrizione dettagliata della forza e del suo ruolo nel cosmo
+  tipo            String // Tipo di forza, es. "positiva", "negativa", "neutra"
+  ottave          Ottava[] // Relazione con le ottave, una forza può essere associata a più ottave
+  processiCosmici ProcessoCosmico[] // Relazione con i processi cosmici
 }
 
-model Ottave {
-    id                  Int      @id @default(autoincrement())
-    nome                String
-    frequenza_iniziale  Float
-    frequenza_finale    Float
-    forza_id            Int
-    descrizione         String
-    livello             Int
-    forza               Forze        @relation(fields: [forza_id], references: [id])
-    vibrazioni          Vibration[]
-    entita              Entita_Cosmiche[]
-    carte               Carte[] @relation("CarteOttaveRelation", fields: [], references: [])
-    scale               Scale[] @relation("ScaleOttaveRelation")
-    idrogeni            Idrogeni[]
-    timelines           Timeline[] @relation("TimelineOttaveRelation")
+model Ottava {
+  id                 Int               @id @default(autoincrement()) // Identificatore unico per l'ottava
+  nome               String // Nome dell'ottava, es. "Ottava Universale"
+  frequenzaIniziale  Float // Frequenza iniziale dell'ottava
+  frequenzaFinale    Float // Frequenza finale dell'ottava
+  descrizione        String? // Descrizione dettagliata dell'ottava
+  livello            Int // Livello gerarchico dell'ottava nel cosmo
+  forza              Forza             @relation(fields: [forzaId], references: [id])
+  forzaId            Int // Relazione con la forza cosmica associata
+  vibrazioni         Vibrazione[] // Relazione con le vibrazioni all'interno dell'ottava
+  relazioniSuperiori RelazioneOttava[] @relation("RelazioneSuperiore")
+  relazioniInferiori RelazioneOttava[] @relation("RelazioneInferiore")
+  entitaCosmiche     EntitaCosmica[] // Entità cosmiche associate all'ottava
 }
 
-model Segmenti {
-    id          Int      @id @default(autoincrement())
-    nome        String
-    descrizione String
-    ordine      Int
+model Segmento {
+  id          Int     @id @default(autoincrement()) // Identificatore unico per il segmento cosmico
+  nome        String // Nome del segmento, es. "Il Sole Santo Assoluto"
+  descrizione String? // Descrizione dettagliata del segmento
+  ordine      Int // Ordine gerarchico o sequenziale del segmento nel cosmo
 }
 
-model Leggi_Cosmiche {
-    id           Int      @id @default(autoincrement())
-    nome         String
-    descrizione  String
-    categoria    String
-    gravita      Int?     // Grado di gravità della legge
-    applicazione String?  // Campo di applicazione della legge
-    processi     Processi_Cosmici[]
-    simboli      Simbologie_Esoteriche[]
-    carte        Carte[]
+model LeggeCosmica {
+  id              Int               @id @default(autoincrement()) // Identificatore unico per la legge cosmica
+  nome            String // Nome della legge cosmica, es. "Legge del Tre"
+  descrizione     String? // Descrizione della legge e del suo effetto sull'universo
+  categoria       String? // Categoria della legge, es. "Fondamentale", "Derivata"
+  processiCosmici ProcessoCosmico[] // Processi cosmici regolati da questa legge
 }
 
-model Relazioni_Ottave {
-    id                 Int      @id @default(autoincrement())
-    ottava_superiore_id Int
-    ottava_inferiore_id Int
-    tipo_relazione     String
-    intensita_relazione Float?  // Intensità della relazione
+model RelazioneOttava {
+  id                Int    @id @default(autoincrement()) // Identificatore unico per la relazione
+  ottavaSuperiore   Ottava @relation("RelazioneSuperiore", fields: [ottavaSuperioreId], references: [id])
+  ottavaSuperioreId Int // Relazione con l'ottava superiore
+  ottavaInferiore   Ottava @relation("RelazioneInferiore", fields: [ottavaInferioreId], references: [id])
+  ottavaInferioreId Int // Relazione con l'ottava inferiore
+  tipoRelazione     String // Tipo di relazione, es. "gerarchica", "causale"
 }
 
-model Vibration {
-    id          Int      @id @default(autoincrement())
-    frequenza   Float
-    intensita   Float
-    fase        String
-    ottava_id   Int
-    ottava      Ottave   @relation(fields: [ottava_id], references: [id])
+model Vibrazione {
+  id        Int     @id @default(autoincrement()) // Identificatore unico per la vibrazione
+  frequenza Float // Frequenza della vibrazione all'interno dell'ottava
+  intensita Float? // Intensità della vibrazione
+  fase      String? // Fase della vibrazione, es. "Iniziale", "Finale"
+  ottava    Ottava  @relation(fields: [ottavaId], references: [id])
+  ottavaId  Int // Relazione con l'ottava di appartenenza
 }
 
-model Entita_Cosmiche {
-    id                  Int      @id @default(autoincrement())
-    nome                String
-    descrizione         String
-    tipo                String
-    ottava_id           Int
-    ottava              Ottave           @relation(fields: [ottava_id], references: [id])
-    oscillazioni        Oscillazioni[]
-    attributi_dinamici  Attributi_Dinamici[]
-    flussi_origine      Flussi_Energetici[] @relation("FlussoOrigine")
-    flussi_destinazione Flussi_Energetici[] @relation("FlussoDestinazione")
-    cicli_evolutivi     Cicli_Evolutivi[]
-    relazioni_superiori Relazioni_Entita[] @relation("EntitaSuperior")
-    relazioni_inferiori Relazioni_Entita[] @relation("EntitaInferior")
+model EntitaCosmica {
+  id                Int                 @id @default(autoincrement()) // Identificatore unico per l'entità cosmica
+  nome              String // Nome dell'entità, es. "Angelo", "Demone"
+  descrizione       String? // Descrizione dell'entità cosmica e del suo ruolo
+  tipo              String // Tipo di entità, es. "Spirituale", "Materiale"
+  ottava            Ottava              @relation(fields: [ottavaId], references: [id])
+  ottavaId          Int // Relazione con l'ottava di appartenenza
+  oscillazioni      Oscillazione[] // Oscillazioni associate all'entità cosmica
+  attributiDinamici AttributoDinamico[] // Attributi dinamici associati all'entità cosmica
 }
 
-model Processi_Cosmici {
-    id          Int      @id @default(autoincrement())
-    nome        String
-    descrizione String
-    forza_id    Int
-    legge_id    Int
-    intensita   Float?   // Intensità del processo
-    durata      Int?     // Durata del processo in unità di tempo
-    forza       Forze    @relation(fields: [forza_id], references: [id])
-    legge       Leggi_Cosmiche @relation(fields: [legge_id], references: [id])
-    eventi      Eventi_Cosmici[]
+model ProcessoCosmico {
+  id             Int          @id @default(autoincrement()) // Identificatore unico per il processo cosmico
+  nome           String // Nome del processo cosmico, es. "Creazione", "Distruzione"
+  descrizione    String? // Descrizione del processo cosmico
+  forza          Forza        @relation(fields: [forzaId], references: [id])
+  forzaId        Int // Relazione con la forza cosmica che guida il processo
+  leggeCosmica   LeggeCosmica @relation(fields: [leggeCosmicaId], references: [id])
+  leggeCosmicaId Int // Relazione con la legge cosmica che governa il processo
 }
 
-model Oscillazioni {
-    id          Int      @id @default(autoincrement())
-    frequenza   Float
-    amplitudine Float
-    fase        String
-    tipo        String
-    entita_cosmica_id Int
-    entita_cosmica Entita_Cosmiche @relation(fields: [entita_cosmica_id], references: [id])
+model Oscillazione {
+  id              Int           @id @default(autoincrement()) // Identificatore unico per l'oscillazione
+  frequenza       Float // Frequenza dell'oscillazione
+  amplitudine     Float? // Amplitudine dell'oscillazione
+  fase            String? // Fase dell'oscillazione, es. "Crescente", "Decrescente"
+  entitaCosmica   EntitaCosmica @relation(fields: [entitaCosmicaId], references: [id])
+  entitaCosmicaId Int // Relazione con l'entità cosmica
 }
 
-model Eventi_Cosmici {
-    id          Int      @id @default(autoincrement())
-    nome        String
-    descrizione String
-    data_inizio DateTime
-    data_fine   DateTime?
-    importanza  Int?     // Grado di importanza dell'evento
-    processi    Processi_Cosmici[]
-    simboli     Simbologie_Esoteriche[]
-    carte       Carte[] @relation("CarteEventiRelation", fields: [], references: [])
-    relazioni_temporali Relazioni_Temporali[]
-    timelines   Timeline[] @relation("TimelineEventiRelation")
-}
-
-model Relazioni_Entita {
-    id                 Int      @id @default(autoincrement())
-    entita_superiore_id Int
-    entita_inferiore_id Int
-    tipo_relazione     String
-    intensita_relazione Float?  // Intensità della relazione
-    entita_superiore   Entita_Cosmiche @relation("EntitaSuperior", fields: [entita_superiore_id], references: [id])
-    entita_inferiore   Entita_Cosmiche @relation("EntitaInferior", fields: [entita_inferiore_id], references: [id])
-}
-
-model Misure_Temporali {
-    id          Int      @id @default(autoincrement())
-    nome        String
-    descrizione String
-    ciclo_iniziale Float
-    ciclo_finale Float
-    relazioni_temporali Relazioni_Temporali[]
-}
-
-model Attributi_Dinamici {
-    id                 Int      @id @default(autoincrement())
-    entita_cosmica_id  Int
-    nome               String
-    valore             String
-    timestamp          DateTime
-    entita_cosmica     Entita_Cosmiche @relation(fields: [entita_cosmica_id], references: [id])
-}
-
-model Relazioni_Temporali {
-    id                 Int      @id @default(autoincrement())
-    evento_id          Int
-    misura_temporale_id Int
-    tipo_relazione     String
-    evento             Eventi_Cosmici @relation(fields: [evento_id], references: [id])
-    misura_temporale   Misure_Temporali @relation(fields: [misura_temporale_id], references: [id])
-}
-
-model Flussi_Energetici {
-    id                  Int      @id @default(autoincrement())
-    entita_origine_id   Int
-    entita_destinazione_id Int
-    quantita_energia    Float
-    condizioni_trasferimento String
-    entita_origine      Entita_Cosmiche @relation("FlussoOrigine", fields: [entita_origine_id], references: [id])
-    entita_destinazione Entita_Cosmiche @relation("FlussoDestinazione", fields: [entita_destinazione_id], references: [id])
-}
-
-model Regioni_Cosmiche {
-    id                  Int      @id @default(autoincrement())
-    nome                String
-    descrizione         String
-    tipo                String
-    coordinate_spaziali String
-    anomalie            Anomalie_Cosmiche[]
-}
-
-model Simbologie_Esoteriche {
-    id                  Int      @id @default(autoincrement())
-    simbolo             String
-    descrizione         String
-    legge_cosmica_id    Int
-    evento_cosmico_id   Int
-    legge_cosmica       Leggi_Cosmiche @relation(fields: [legge_cosmica_id], references: [id])
-    evento_cosmico      Eventi_Cosmici @relation(fields: [evento_cosmico_id], references: [id])
-}
-
-model Cicli_Evolutivi {
-    id                  Int      @id @default(autoincrement())
-    entita_id           Int
-    ciclo_iniziale      Float
-    ciclo_finale        Float
-    trasformazioni      String
-    entita              Entita_Cosmiche @relation(fields: [entita_id], references: [id])
-}
-
-model Anomalie_Cosmiche {
-    id                  Int      @id @default(autoincrement())
-    nome                String
-    descrizione         String
-    impatti             String
-    regione_id          Int?
-    regione             Regioni_Cosmiche? @relation(fields: [regione_id], references: [id])
-    carte               Carte[] @relation("AnomalieCarteRelation")
-}
-
-model Idrogeni {
-    id        Int    @id @default(autoincrement())
-    nome      String
-    densita   Float
-    energia   Float
-    ottava_id Int
-    ottava    Ottave @relation(fields: [ottava_id], references: [id])
-}
-
-model Carte {
-    id                  Int      @id @default(autoincrement())
-    nome                String
-    descrizione         String
-    tipo                String
-    evento_id           Int?
-    forza_id            Int?
-    legge_cosmica_id    Int?
-    significato_temporale String? // Significato temporale della carta
-    livello_energia     Float?   // Livello di energia associato alla carta
-    forza               Forze? @relation(fields: [forza_id], references: [id])
-    legge_cosmica       Leggi_Cosmiche? @relation(fields: [legge_cosmica_id], references: [id])
-    anomalie            Anomalie_Cosmiche[] @relation("AnomalieCarteRelation")
-    ottava_id           Int?
-    ottava              Ottave? @relation("CarteOttaveRelation", fields: [ottava_id], references: [id])
-    eventi_CosmiciId    Int?
-    eventi_Cosmici      Eventi_Cosmici? @relation("CarteEventiRelation", fields: [eventi_CosmiciId], references: [id])
-}
-
-model Scale {
-    id                  Int      @id @default(autoincrement())
-    nome                String
-    livello             Int        // Livello della scala (0, 1, 2, 3)
-    tempo_totale        Float      // Tempo totale rappresentato dalla scala
-    ottave              Ottave[]   @relation("ScaleOttaveRelation")
-    timelines           Timeline[] @relation("TimelineScalaRelation")
-}
-
-model Timeline {
-    id                  Int      @id @default(autoincrement())
-    nome                String
-    scala_id            Int
-    scala               Scale    @relation(fields: [scala_id], references: [id], name: "TimelineScalaRelation")
-    ottave              Ottave[] @relation("TimelineOttaveRelation") // Collegamento alle ottave associate in questa timeline
-    eventi              Eventi_Cosmici[] @relation("TimelineEventiRelation")
-    tempo_inizio        DateTime // Inizio del tempo della timeline
-    tempo_fine          DateTime? // Fine del tempo della timeline
+model AttributoDinamico {
+  id              Int           @id @default(autoincrement()) // Identificatore unico per l'attributo dinamico
+  nome            String // Nome dell'attributo, es. "Luminosità", "Intensità"
+  valore          String // Valore dell'attributo
+  timestamp       DateTime // Timestamp per tracciare l'evoluzione temporale dell'attributo
+  entitaCosmica   EntitaCosmica @relation(fields: [entitaCosmicaId], references: [id])
+  entitaCosmicaId Int // Relazione con l'entità cosmica
 }
